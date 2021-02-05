@@ -1,3 +1,5 @@
+const CampoInvalido = require('../erros/CampoInvalido')
+const DadosNaoFornecidos = require('../erros/DadosNaoFornecidos')
 const acoesTabela = require('./AcoesTabela')
 
 class Jogo {
@@ -11,6 +13,7 @@ class Jogo {
     }
 
     async criar() {
+        this.validar()
         const resultado = await acoesTabela.inserir({
             nome: this.nome,
             plataforma: this.plataforma
@@ -32,7 +35,8 @@ class Jogo {
     }
 
     async atualizar() {
-        await acoesTabela.buscaPorId(this.id)
+        this.validar()
+        await acoesTabela.buscaPorId(this.id) // No método buscaPorId já é tratado o caso de id's inexistentes
         const campos = ['nome', 'plataforma']
         const dadosParaAtualizar = {}
 
@@ -41,14 +45,32 @@ class Jogo {
 
             if (typeof valor === 'string' && valor.length > 0) {
                 dadosParaAtualizar[campo] = valor
+            } else if (typeof valor !== 'string'){
+                throw new CampoInvalido(campo)
             }
         })
+
+        if(Object.keys(dadosParaAtualizar).length === 0) {
+            throw new DadosNaoFornecidos()
+        }
 
         await acoesTabela.atualizar(this.id, dadosParaAtualizar)
     }
 
     remover() {
         return acoesTabela.remover(this.id)
+    }
+
+    validar() {
+        const campos = ['nome', 'plataforma']
+
+        campos.forEach(campo => {
+            const valor = this[campo]
+
+            if(typeof valor !== 'string' || valor.length == 0) {
+                throw new CampoInvalido(campo)
+            }
+        })
     }
 
 }
