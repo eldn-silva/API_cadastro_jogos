@@ -1,0 +1,11 @@
+{
+    "mysql": {
+        "banco-de-dados": "jogos_favoritos",
+        "usuario": "root",
+        "senha": "password",
+        "host": "localhost"
+    },
+    "api": {
+        "porta": 3000
+    }
+}
